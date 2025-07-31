@@ -20,14 +20,20 @@ function toMetadeck(game: rawg.FullRawgGameDetails): MetadeckGameDetails {
     return {
         title: game.name,
         id: game.id,
-        description: game.description,
-        developers: game.developers.map(d => ({ name: d.name, url: "" })),
-        publishers: game.publishers.map(p => ({ name: p.name, url: "" })),
+        description: game.description_raw,
+        developers: game.developers.map(d => ({ name: d.name, url: toStoreSearchUrl(d.name, "developer") })),
+        publishers: game.publishers.map(p => ({ name: p.name, url: toStoreSearchUrl(p.name, "publisher") })),
         release_date: new Date(game.released).valueOf() / 1000,
         compat_category: STEAM_COMPAT.UNKNOWN,
         compat_notes: '',
         store_categories: [...new Set(game.tags.map(t => RAWG_TAGS_MAPPING[t.name]).filter(Boolean))]
     }
+}
+
+function toStoreSearchUrl(company: string, type: "developer" | "publisher") {
+    return "https://store.steampowered.com/search/?" + new URLSearchParams({
+        [type]: company
+    });
 }
 
 function toIgdb(game: MetadeckGameDetails) {

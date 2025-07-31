@@ -18,6 +18,7 @@ export interface FullRawgGameDetails {
     name: string;
     released: string;
     description: string;
+    description_raw: string;
     developers: RawgEntity[]
     publishers: RawgEntity[]
     tags: RawgEntity[]
