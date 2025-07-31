@@ -1,14 +1,17 @@
 import { MetadeckGameDetails, STEAM_COMPAT, STEAM_STORE_CATEGORIES } from "../metadeck.ts";
 import * as rawg from "./api.ts";
+import { getOrMap } from "../cache.ts";
 
 export function search(query: string) {
-    return rawg.search(query).then(r => {
-        return Promise.all(r.results.map(g => get(g.id)))
-    })
+    return getOrMap(["rawg", "search", query], () =>
+        rawg.search(query).then(r =>
+            Promise.all(r.results.map(g => get(g.id)))
+        )
+    );
 }
 
 export function get(id: number) {
-    return rawg.get(id).then(toMetadeck)
+    return getOrMap(["rawg", "get", id], () => rawg.get(id).then(toMetadeck));
 }
 
 
