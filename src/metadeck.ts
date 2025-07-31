@@ -2,15 +2,15 @@ export interface MetadeckGameDetails {
     title: string;
     id: number;
     description: string;
-    developers: GameOrganization[];
-    publishers: GameOrganization[];
+    developers: GameCompany[];
+    publishers: GameCompany[];
     release_date: number;
     compat_category: number;
     compat_notes: string;
     store_categories: number[];
 }
 
-export interface GameOrganization {
+export interface GameCompany {
     name: string;
     url?: string;
 }

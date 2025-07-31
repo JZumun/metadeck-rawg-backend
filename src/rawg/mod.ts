@@ -11,7 +11,9 @@ export function search(query: string) {
 }
 
 export function get(id: number) {
-    return getOrMap(["rawg", "get", id], () => rawg.get(id).then(toMetadeck));
+    return getOrMap(["rawg", "get", id], () => rawg.get(id))
+        .then(toMetadeck)
+        .then(toIgdb);
 }
 
 
@@ -22,10 +24,36 @@ function toMetadeck(game: rawg.FullRawgGameDetails): MetadeckGameDetails {
         description: game.description,
         developers: game.developers.map(d => ({ name: d.name })),
         publishers: game.publishers.map(p => ({ name: p.name })),
-        release_date: new Date(game.released).valueOf(),
+        release_date: new Date(game.released).valueOf() / 1000,
         compat_category: STEAM_COMPAT.UNKNOWN,
         compat_notes: '',
         store_categories: [...new Set(game.tags.map(t => RAWG_TAGS_MAPPING[t.name]).filter(Boolean))]
+    }
+}
+
+function toIgdb(game: MetadeckGameDetails) {
+    const categories = new Set(game.store_categories);
+
+    return {
+        id: game.id,
+        name: game.title,
+        summary: game.description,
+        first_release_date: game.release_date,
+        game_modes: [
+            categories.has(STEAM_STORE_CATEGORIES.SinglePlayer) ? { slug: "single-player" } : null,
+            categories.has(STEAM_STORE_CATEGORIES.MultiPlayer) ? { slug: "multiplayer" } : null
+        ].filter(Boolean),
+        multiplayer_modes: [{
+            onlinecoop: categories.has(STEAM_STORE_CATEGORIES.OnlineCoOp),
+            offlinecoop: categories.has(STEAM_STORE_CATEGORIES.LocalCoOp),
+            splitscreen: categories.has(STEAM_STORE_CATEGORIES.SplitScreen),
+            splitscreenonline: categories.has(STEAM_STORE_CATEGORIES.OnlineMultiPlayer),
+        }],
+        involved_companies: [
+            ...game.developers.map(d => ({ company: d.name, developer: true })),
+            ...game.publishers.map(p => ({ company: p.name, publisher: true }))
+        ]
+
     }
 }
 
