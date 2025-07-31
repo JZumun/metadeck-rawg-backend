@@ -1,26 +1,26 @@
 import { MetadeckGameDetails, STEAM_COMPAT, STEAM_STORE_CATEGORIES } from "../metadeck.ts";
 import * as rawg from "./api.ts";
 import { getOrMap } from "../cache.ts";
+import { mdConverter, type TurndownService } from "../markdown.ts";
 
-export function search(query: string, requestId: string) {
+export function search(query: string, requestId: string, md = mdConverter()) {
     return getOrMap(["rawg", "search", query], () => rawg.search(query), requestId)
         .then(r =>
-            Promise.all(r.results.map(g => get(g.id, requestId)))
+            Promise.all(r.results.map(g => get(g.id, requestId, md)))
         )
 }
 
-export function get(id: number, requestId: string) {
+export function get(id: number, requestId: string, md = mdConverter()) {
     return getOrMap(["rawg", "get", id], () => rawg.get(id), requestId)
-        .then(toMetadeck)
-        .then(toIgdb);
+        .then(game => toIgdb(toMetadeck(game, md)))
 }
 
 
-function toMetadeck(game: rawg.FullRawgGameDetails): MetadeckGameDetails {
+function toMetadeck(game: rawg.FullRawgGameDetails, md: TurndownService): MetadeckGameDetails {
     return {
         title: game.name,
         id: game.id,
-        description: game.description_raw,
+        description: md.turndown(game.description ?? ""),
         developers: game.developers.map(d => ({ name: d.name, url: toStoreSearchUrl(d.name, "developer") })),
         publishers: game.publishers.map(p => ({ name: p.name, url: toStoreSearchUrl(p.name, "publisher") })),
         release_date: new Date(game.released).valueOf() / 1000,
@@ -31,7 +31,7 @@ function toMetadeck(game: rawg.FullRawgGameDetails): MetadeckGameDetails {
 }
 
 function toStoreSearchUrl(company: string, type: "developer" | "publisher") {
-    return "https://store.steampowered.com/search/?" + new URLSearchParams({
+    return "https://store.steampowered.com/search?" + new URLSearchParams({
         [type]: company
     });
 }
