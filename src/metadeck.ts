@@ -12,7 +12,7 @@ export interface MetadeckGameDetails {
 
 export interface GameCompany {
     name: string;
-    url?: string;
+    url: string;
 }
 
 export const STEAM_COMPAT = {

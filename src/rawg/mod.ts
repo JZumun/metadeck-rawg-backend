@@ -21,8 +21,8 @@ function toMetadeck(game: rawg.FullRawgGameDetails): MetadeckGameDetails {
         title: game.name,
         id: game.id,
         description: game.description,
-        developers: game.developers.map(d => ({ name: d.name })),
-        publishers: game.publishers.map(p => ({ name: p.name })),
+        developers: game.developers.map(d => ({ name: d.name, url: "" })),
+        publishers: game.publishers.map(p => ({ name: p.name, url: "" })),
         release_date: new Date(game.released).valueOf() / 1000,
         compat_category: STEAM_COMPAT.UNKNOWN,
         compat_notes: '',
@@ -49,8 +49,8 @@ function toIgdb(game: MetadeckGameDetails) {
             splitscreenonline: categories.has(STEAM_STORE_CATEGORIES.OnlineMultiPlayer),
         }],
         involved_companies: [
-            ...game.developers.map(d => ({ company: d.name, developer: true })),
-            ...game.publishers.map(p => ({ company: p.name, publisher: true }))
+            ...game.developers.map(d => ({ company: d.name, url: d.url, developer: true })),
+            ...game.publishers.map(p => ({ company: p.name, url: p.url, publisher: true }))
         ]
 
     }
