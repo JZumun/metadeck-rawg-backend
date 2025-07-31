@@ -2,16 +2,15 @@ import { MetadeckGameDetails, STEAM_COMPAT, STEAM_STORE_CATEGORIES } from "../me
 import * as rawg from "./api.ts";
 import { getOrMap } from "../cache.ts";
 
-export function search(query: string) {
-    return getOrMap(["rawg", "search", query], () =>
-        rawg.search(query).then(r =>
-            Promise.all(r.results.map(g => get(g.id)))
+export function search(query: string, requestId: string) {
+    return getOrMap(["rawg", "search", query], () => rawg.search(query), requestId)
+        .then(r =>
+            Promise.all(r.results.map(g => get(g.id, requestId)))
         )
-    );
 }
 
-export function get(id: number) {
-    return getOrMap(["rawg", "get", id], () => rawg.get(id))
+export function get(id: number, requestId: string) {
+    return getOrMap(["rawg", "get", id], () => rawg.get(id), requestId)
         .then(toMetadeck)
         .then(toIgdb);
 }
