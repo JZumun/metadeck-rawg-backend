@@ -55,8 +55,8 @@ function toIgdb(game: MetadeckGameDetails) {
             splitscreenonline: categories.has(STEAM_STORE_CATEGORIES.OnlineMultiPlayer),
         }],
         involved_companies: [
-            ...game.developers.map(d => ({ company: d.name, url: d.url, developer: true })),
-            ...game.publishers.map(p => ({ company: p.name, url: p.url, publisher: true }))
+            ...game.developers.map(d => ({ developer: true, company: { name: d.name, url: d.url } })),
+            ...game.publishers.map(p => ({ publisher: true, company: { name: p.name, url: p.url } }))
         ]
 
     }
